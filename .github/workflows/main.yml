@@ -1,0 +1,60 @@
+name: helm-ci
+
+on: push
+
+jobs:
+  pre-commit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+      - name: Run pre-commit
+        uses: pre-commit/action@v3.0.1
+  semantic-version:
+    needs: [pre-commit]
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.release.outputs.release-version }}
+    steps:
+      - uses: actions/checkout@v6
+      - id: release
+        uses: orbitcluster/oc-cicd-release-workflow@v1
+        with:
+          github-token: ${{ github.token }}
+          dry-run: ${{ github.ref_name != 'main' }}
+  helm:
+    if: ${{ needs.semantic-version.outputs.version }}
+    runs-on: ubuntu-latest
+    needs: [semantic-version]
+    outputs:
+      chart-archive: ${{ steps.helm-package.outputs.chart-archive }}
+      image: ${{ steps.helm-package.outputs.image }}
+      package: ${{ steps.helm-package.outputs.package }}
+      version: ${{ steps.helm-package.outputs.version }}
+    steps:
+      - uses: actions/checkout@v6
+
+      - id: helm-package
+        uses: orbitcluster/oc-cicd-helm-package@feat/ci
+        with:
+          github-token: ${{ github.token }}
+          path: charts/k8s-service
+          version-override: ${{ needs.semantic-version.outputs.version }}
+          validate-templates: true
+
+      # - id: download-package
+      #   uses: actions/download-artifact@v6
+      #   with:
+      #     name: ${{ steps.helm-package.outputs.package }}
+
+      # - uses: orbitcluster/oc-cicd-helm-push-workflow@feat/helmpush
+      #   with:
+      #     appid: 0
+      #     orgid: 0
+      #     buid: 0
+      #     role-to-assume: "${{ secrets.OC_ROLE_TO_ASSUME }}"
+      #     region: "us-east-1"
+      #     chart-archive: ${{ steps.helm-package.outputs.chart-archive }}
+      #     image: ${{ steps.helm-package.outputs.image }}
+      #     package: ${{ steps.helm-package.outputs.package }}
+      #     version: ${{ steps.helm-package.outputs.version }}
