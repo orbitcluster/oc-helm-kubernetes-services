@@ -2,6 +2,10 @@ name: helm-ci
 
 on: push
 
+permissions:
+  id-token: write
+  contents: write
+
 jobs:
   pre-commit:
     runs-on: ubuntu-latest
