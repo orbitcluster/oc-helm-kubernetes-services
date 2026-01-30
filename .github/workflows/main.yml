@@ -46,7 +46,7 @@ jobs:
           version-override: ${{ needs.semantic-version.outputs.version }}
           validate-templates: true
 
-      # - id: download-packages
+      # - id: download-package
       #   uses: actions/download-artifact@v6
       #   with:
       #     name: ${{ steps.helm-package.outputs.package }}
