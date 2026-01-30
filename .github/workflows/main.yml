@@ -47,6 +47,14 @@ jobs:
           version-override: ${{ needs.semantic-version.outputs.version }}
           validate-templates: true
 
+      - name: Print chart package
+        shell: bash
+        run: |
+          echo ${{ steps.helm-package.outputs.package }}
+          echo ${{ steps.helm-package.outputs.version }}
+          echo ${{ steps.helm-package.outputs.image }}
+          echo ${{ steps.helm-package.outputs.chart-archive }}
+
       # - id: download-package
       #   uses: actions/download-artifact@v6
       #   with:
