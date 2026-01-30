@@ -57,7 +57,7 @@ jobs:
 
       - uses: orbitcluster/oc-cicd-helm-push-workflow@feat/helmpush
         with:
-          appid: 0
+          appid: 1
           orgid: 0
           buid: 0
           role-to-assume: "${{ secrets.OC_ROLE_TO_ASSUME }}"
