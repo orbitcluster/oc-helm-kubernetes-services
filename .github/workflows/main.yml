@@ -40,7 +40,7 @@ jobs:
       - uses: actions/checkout@v6
 
       - id: helm-package
-        uses: orbitcluster/oc-cicd-helm-package@feat/ci
+        uses: orbitcluster/oc-cicd-helm-package@v1
         with:
           github-token: ${{ github.token }}
           path: charts/k8s-service
@@ -55,7 +55,7 @@ jobs:
           echo ${{ steps.helm-package.outputs.image }}
           echo ${{ steps.helm-package.outputs.chart-archive }}
 
-      - uses: orbitcluster/oc-cicd-helm-push-workflow@feat/helmpush
+      - uses: orbitcluster/oc-cicd-helm-push-workflow@v1
         with:
           appid: 1
           orgid: 0
