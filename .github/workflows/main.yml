@@ -2,9 +2,10 @@ name: helm-ci
 
 on:
   push:
+    branches: ["main"]
   pull_request:
     branches: ["main"]
-
+  workflow_dispatch:
 permissions:
   id-token: write
   contents: write
