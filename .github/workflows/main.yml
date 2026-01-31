@@ -71,3 +71,4 @@ jobs:
           version: ${{ steps.helm-package.outputs.version }}
           github-token: ${{ github.token }}
           repository: "platform"
+#
