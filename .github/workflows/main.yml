@@ -55,15 +55,15 @@ jobs:
           echo ${{ steps.helm-package.outputs.image }}
           echo ${{ steps.helm-package.outputs.chart-archive }}
 
-      # - uses: orbitcluster/oc-cicd-helm-push-workflow@feat/helmpush
-      #   with:
-      #     appid: 1
-      #     orgid: 0
-      #     buid: 0
-      #     role-to-assume: "${{ secrets.OC_ROLE_TO_ASSUME }}"
-      #     region: "us-east-1"
-      #     chart-archive: ${{ steps.helm-package.outputs.chart-archive }}
-      #     package: ${{ steps.helm-package.outputs.package }}
-      #     version: ${{ steps.helm-package.outputs.version }}
-      #     github-token: ${{ github.token }}
-      #     repository: "platform"
+      - uses: orbitcluster/oc-cicd-helm-push-workflow@feat/helmpush
+        with:
+          appid: 1
+          orgid: 0
+          buid: 0
+          role-to-assume: "${{ secrets.OC_ROLE_TO_ASSUME }}"
+          region: "us-east-1"
+          chart-archive: ${{ steps.helm-package.outputs.chart-archive }}
+          package: ${{ steps.helm-package.outputs.package }}
+          version: ${{ steps.helm-package.outputs.version }}
+          github-token: ${{ github.token }}
+          repository: "platform"
