@@ -1,0 +1,69 @@
+name: helm-ci
+
+on: push
+
+permissions:
+  id-token: write
+  contents: write
+  packages: write
+
+jobs:
+  pre-commit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+      - name: Run pre-commit
+        uses: pre-commit/action@v3.0.1
+  semantic-version:
+    needs: [pre-commit]
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.release.outputs.release-version }}
+    steps:
+      - uses: actions/checkout@v6
+      - id: release
+        uses: orbitcluster/oc-cicd-release-workflow@v1
+        with:
+          github-token: ${{ github.token }}
+          dry-run: ${{ github.ref_name != 'main' }}
+  helm:
+    if: ${{ needs.semantic-version.outputs.version }}
+    runs-on: ubuntu-latest
+    needs: [semantic-version]
+    outputs:
+      chart-archive: ${{ steps.helm-package.outputs.chart-archive }}
+      image: ${{ steps.helm-package.outputs.image }}
+      package: ${{ steps.helm-package.outputs.package }}
+      version: ${{ steps.helm-package.outputs.version }}
+    steps:
+      - uses: actions/checkout@v6
+
+      - id: helm-package
+        uses: orbitcluster/oc-cicd-helm-package@v1
+        with:
+          github-token: ${{ github.token }}
+          path: charts/k8s-service
+          version-override: ${{ github.ref_name == 'main' && needs.semantic-version.outputs.version || '' }}
+          validate-templates: true
+
+      - name: Print chart package
+        shell: bash
+        run: |
+          echo ${{ steps.helm-package.outputs.package }}
+          echo ${{ steps.helm-package.outputs.version }}
+          echo ${{ steps.helm-package.outputs.image }}
+          echo ${{ steps.helm-package.outputs.chart-archive }}
+
+      - uses: orbitcluster/oc-cicd-helm-push-workflow@v1
+        with:
+          appid: 1
+          orgid: 0
+          buid: 0
+          role-to-assume: "${{ secrets.OC_ROLE_TO_ASSUME }}"
+          region: "us-east-1"
+          chart-archive: ${{ steps.helm-package.outputs.chart-archive }}
+          package: ${{ steps.helm-package.outputs.package }}
+          version: ${{ steps.helm-package.outputs.version }}
+          github-token: ${{ github.token }}
+          repository: "platform"
