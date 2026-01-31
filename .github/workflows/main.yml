@@ -1,7 +1,11 @@
 name: helm-ci
 
-on: push
-
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+  workflow_dispatch:
 permissions:
   id-token: write
   contents: write
@@ -47,7 +51,7 @@ jobs:
           version-override: ${{ github.ref_name == 'main' && needs.semantic-version.outputs.version || '' }}
           validate-templates: true
 
-      - name: Print chart package
+      - name: Print chart package information
         shell: bash
         run: |
           echo ${{ steps.helm-package.outputs.package }}
@@ -67,3 +71,4 @@ jobs:
           version: ${{ steps.helm-package.outputs.version }}
           github-token: ${{ github.token }}
           repository: "platform"
+#
