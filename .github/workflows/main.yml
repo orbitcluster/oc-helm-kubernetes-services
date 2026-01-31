@@ -1,6 +1,9 @@
 name: helm-ci
 
-on: push
+on:
+  push:
+  pull_request:
+    branches: ["main"]
 
 permissions:
   id-token: write
@@ -47,7 +50,7 @@ jobs:
           version-override: ${{ github.ref_name == 'main' && needs.semantic-version.outputs.version || '' }}
           validate-templates: true
 
-      - name: Print chart package
+      - name: Print chart package information
         shell: bash
         run: |
           echo ${{ steps.helm-package.outputs.package }}
@@ -55,7 +58,7 @@ jobs:
           echo ${{ steps.helm-package.outputs.image }}
           echo ${{ steps.helm-package.outputs.chart-archive }}
 
-      - uses: orbitcluster/oc-cicd-helm-push-workflow@v1
+      - uses: orbitcluster/oc-cicd-helm-push-workflow@feat/cleanup
         with:
           appid: 1
           orgid: 0
