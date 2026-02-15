@@ -1027,3 +1027,87 @@ google:
   # Use a Google Managed Certificate. By default, turn off.
   managedCertificate:
     enabled: false
+
+#----------------------------------------------------------------------------------------------------------------------
+# ISTIO SERVICE MESH VALUES
+# istio specifies Istio service mesh configuration for VirtualService and traffic management
+#----------------------------------------------------------------------------------------------------------------------
+
+# result of recent change to require explicit config
+# istio is a map that configures Istio VirtualService for the application.
+# The expected keys are:
+#   - gatewayName   (string)            : Name of the Istio Gateway to use. Defaults to "orbit-gateway"
+#   - gatewayNamespace (string)         : Namespace where the Gateway resides. Defaults to "istio-system"
+#   - virtualService (map)              : VirtualService configuration (see below)
+#
+# The expected keys of virtualService are:
+#   - enabled       (bool)   (required) : Whether or not the VirtualService should be created
+#   - hosts         (list[string])      : List of hosts for the VirtualService. Required.
+#   - gateways      (list[string])      : List of gateways to attach to. If not specified, uses default gateway
+#   - pathPrefix    (string)            : URL path prefix to match. Required.
+#   - rewrite       (string)            : Rewrite the URI to this path after matching
+#   - servicePort   (int)               : Port on the service to route to. Defaults to 80
+#   - timeout       (string)            : Request timeout (e.g., "30s")
+#   - retries       (map)               : Retry configuration for failed requests
+#   - corsPolicy    (map)               : CORS policy configuration
+#   - http          (list[map])         : Custom HTTP route rules (overrides default routing)
+#   - labels        (map)               : Additional labels for the VirtualService
+#   - annotations   (map)               : Annotations for the VirtualService
+#
+# EXAMPLE (basic):
+#
+# istio:
+#   virtualService:
+#     enabled: true
+#     hosts:
+#       - myapp.oc.orbitcluster.com
+#     pathPrefix: "/"
+#
+# EXAMPLE (with custom timeout and retries):
+#
+# istio:
+#   virtualService:
+#     enabled: true
+#     hosts:
+#       - api.myapp.oc.orbitcluster.com
+#     pathPrefix: "/api"
+#     timeout: "30s"
+#     retries:
+#       attempts: 3
+#       perTryTimeout: "10s"
+#       retryOn: "5xx,reset,connect-failure"
+#
+# EXAMPLE (with CORS):
+#
+# istio:
+#   virtualService:
+#     enabled: true
+#     hosts:
+#       - cors-app.oc.orbitcluster.com
+#     pathPrefix: "/"
+#     corsPolicy:
+#       allowOrigins:
+#         - exact: "https://app.example.com"
+#       allowMethods:
+#         - GET
+#         - POST
+#       allowHeaders:
+#         - Authorization
+#       maxAge: "24h"
+#
+istio:
+  gatewayName: "istio-gateway"
+  gatewayNamespace: "istio-system"
+  virtualService:
+    enabled: false
+    hosts: []
+    gateways: []
+    pathPrefix: "/"
+    rewrite: ""
+    servicePort: 80
+    timeout: ""
+    retries: {}
+    corsPolicy: {}
+    http: []
+    labels: {}
+    annotations: {}
