@@ -1,0 +1,58 @@
+{{- if .Values.istio.virtualService.enabled }}
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: {{ include "k8s-service.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "k8s-service.labels" . | nindent 4 }}
+    {{- if .Values.istio.virtualService.labels }}
+    {{- toYaml .Values.istio.virtualService.labels | nindent 4 }}
+    {{- end }}
+  {{- if .Values.istio.virtualService.annotations }}
+  annotations:
+    {{- toYaml .Values.istio.virtualService.annotations | nindent 4 }}
+  {{- end }}
+spec:
+  hosts:
+    {{- if .Values.istio.virtualService.hosts }}
+    {{- toYaml .Values.istio.virtualService.hosts | nindent 4 }}
+    {{- end }}
+  gateways:
+    {{- if .Values.istio.virtualService.gateways }}
+    {{- toYaml .Values.istio.virtualService.gateways | nindent 4 }}
+    {{- else }}
+    - {{ .Values.istio.gatewayNamespace | default "istio-system" }}/{{ .Values.istio.gatewayName | default "orbit-gateway" }}
+    {{- end }}
+  http:
+    {{- if .Values.istio.virtualService.http }}
+    {{- toYaml .Values.istio.virtualService.http | nindent 4 }}
+    {{- else }}
+    - match:
+        - uri:
+            prefix: {{ .Values.istio.virtualService.pathPrefix }}
+      {{- if .Values.istio.virtualService.rewrite }}
+      rewrite:
+        uri: {{ .Values.istio.virtualService.rewrite }}
+      {{- end }}
+      {{- if .Values.istio.virtualService.timeout }}
+      timeout: {{ .Values.istio.virtualService.timeout }}
+      {{- end }}
+      {{- if .Values.istio.virtualService.retries }}
+      retries:
+        {{- toYaml .Values.istio.virtualService.retries | nindent 8 }}
+      {{- end }}
+      {{- if .Values.istio.virtualService.corsPolicy }}
+      corsPolicy:
+        {{- toYaml .Values.istio.virtualService.corsPolicy | nindent 8 }}
+      {{- end }}
+      route:
+        - destination:
+            host: {{ include "k8s-service.fullname" . }}
+            port:
+              number: {{ .Values.istio.virtualService.servicePort | default 80 }}
+          {{- if .Values.istio.virtualService.weight }}
+          weight: {{ .Values.istio.virtualService.weight }}
+          {{- end }}
+    {{- end }}
+{{- end }}

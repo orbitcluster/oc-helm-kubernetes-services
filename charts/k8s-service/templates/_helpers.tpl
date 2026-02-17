@@ -69,5 +69,25 @@ However, due to yaml/json limitations, all the Kubernetes resources require file
       {{- $_ := set $accumulator "res" (add (index $accumulator "res") (mul $digitI 1)) -}}
     {{- end -}}
   {{- end -}}
-  {{- "res" | index $accumulator | toString | printf -}}
+{{- "res" | index $accumulator | toString | printf -}}
 {{- end -}}
+
+{{/*
+Common labels
+*/}}
+{{- define "k8s-service.labels" -}}
+helm.sh/chart: {{ include "k8s-service.chart" . }}
+{{ include "k8s-service.selectorLabels" . }}
+{{- if .Chart.AppVersion }}
+app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+{{- end }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+{{- end }}
+
+{{/*
+Selector labels
+*/}}
+{{- define "k8s-service.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "k8s-service.name" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
+{{- end }}

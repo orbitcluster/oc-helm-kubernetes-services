@@ -1,0 +1,59 @@
+{{- range $name, $svc := .Values.additionalServices }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "k8s-service.fullname" $ }}-{{ $name }}
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    {{- include "k8s-service.labels" $ | nindent 4 }}
+    app.kubernetes.io/component: {{ $name }}
+spec:
+  replicas: {{ $svc.replicaCount | default $.Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "k8s-service.selectorLabels" $ | nindent 6 }}
+      app.kubernetes.io/component: {{ $name }}
+  template:
+    metadata:
+      labels:
+        {{- include "k8s-service.selectorLabels" $ | nindent 8 }}
+        app.kubernetes.io/component: {{ $name }}
+    spec:
+      containers:
+        - name: {{ $name }}
+          image: "{{ $.Values.containerImage.repository }}:{{ $.Values.containerImage.tag }}"
+          imagePullPolicy: {{ $.Values.containerImage.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ $.Values.containerPorts.http.port | default 80 }}
+              protocol: TCP
+          env:
+            {{- if $svc.env }}
+            {{- toYaml $svc.env | nindent 12 }}
+            {{- end }}
+            {{- if $.Values.env }}
+            {{- toYaml $.Values.env | nindent 12 }}
+            {{- end }}
+          resources:
+            {{- toYaml ( $svc.resources | default $.Values.containerResources ) | nindent 12 }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "k8s-service.fullname" $ }}-{{ $name }}
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    {{- include "k8s-service.labels" $ | nindent 4 }}
+    app.kubernetes.io/component: {{ $name }}
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: {{ $.Values.service.ports.app.targetPort | default "http" }}
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "k8s-service.selectorLabels" $ | nindent 4 }}
+    app.kubernetes.io/component: {{ $name }}
+{{- end }}
