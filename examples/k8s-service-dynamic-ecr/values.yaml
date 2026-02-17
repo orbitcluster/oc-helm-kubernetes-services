@@ -1,0 +1,36 @@
+#----------------------------------------------------------------------------------------------------------------------
+# CHART PARAMETERS FOR DYNAMIC ECR EXAMPLE
+# This file declares the values for the k8s-service helm chart to demonstrate dynamic ECR repository construction.
+#----------------------------------------------------------------------------------------------------------------------
+
+#----------------------------------------------------------------------------------------------------------------------
+# REQUIRED VALUES OF CHART
+#----------------------------------------------------------------------------------------------------------------------
+
+# Identity parameters for dynamic ECR repository construction.
+# When these are provided, the chart constructs the repository name as:
+# ${orgid}-${buid}-${appid}/${applicationName}
+orgid: "myorg"
+buid: "finance"
+appid: "payment"
+applicationName: "processor"
+
+# Even when using dynamic repository construction, containerImage must be defined.
+# The 'repository' field will be overridden, but 'tag' and 'pullPolicy' are still used.
+containerImage:
+  repository: "will-be-overridden" # This value is ignored when orgid, buid, and appid are set
+  tag: "v1.0.0"
+  pullPolicy: IfNotPresent
+
+#----------------------------------------------------------------------------------------------------------------------
+# OPTIONAL VALUES
+#----------------------------------------------------------------------------------------------------------------------
+
+service:
+  enabled: true
+  type: ClusterIP
+  ports:
+    app:
+      port: 80
+      targetPort: 8080
+      protocol: TCP

@@ -161,13 +161,23 @@ spec:
       containers:
         {{- if .isCanary }}
         - name: {{ .Values.applicationName }}-canary
-          {{- $repo := required ".Values.canary.containerImage.repository is required" .Values.canary.containerImage.repository }}
+          {{- $repo := .Values.canary.containerImage.repository -}}
+          {{- if and .Values.orgid .Values.buid .Values.appid -}}
+
+            {{- $repo = printf "%s-%s-%s/%s" .Values.orgid .Values.buid .Values.appid .Values.applicationName -}}
+          {{- end -}}
+          {{- $repo := required "Repo Is Required" $repo }}
           {{- $tag := required ".Values.canary.containerImage.tag is required" .Values.canary.containerImage.tag }}
           image: "{{ $repo }}:{{ $tag }}"
           imagePullPolicy: {{ .Values.canary.containerImage.pullPolicy | default "IfNotPresent" }}
         {{- else }}
         - name: {{ .Values.applicationName }}
-          {{- $repo := required ".Values.containerImage.repository is required" .Values.containerImage.repository }}
+          {{- $repo := .Values.containerImage.repository -}}
+          {{- if and .Values.orgid .Values.buid .Values.appid -}}
+
+            {{- $repo = printf "%s-%s-%s/%s" .Values.orgid .Values.buid .Values.appid .Values.applicationName -}}
+          {{- end -}}
+          {{- $repo := required "Repo Is Required" $repo }}
           {{- $tag := required ".Values.containerImage.tag is required" .Values.containerImage.tag }}
           image: "{{ $repo }}:{{ $tag }}"
           imagePullPolicy: {{ .Values.containerImage.pullPolicy | default "IfNotPresent" }}
