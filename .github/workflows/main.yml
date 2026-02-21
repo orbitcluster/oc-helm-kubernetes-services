@@ -64,8 +64,8 @@ jobs:
           appid: 1
           orgid: 0
           buid: 0
-          dockerhub-username: "${{ secrets.DOCKERHUB_LOGIN }}"
-          dockerhub-token: "${{ secrets.DOCKERHUB_TOKEN }}"
+          role-to-assume: "${{ secrets.OC_ROLE_TO_ASSUME }}"
+          region: "us-east-1"
           chart-archive: ${{ steps.helm-package.outputs.chart-archive }}
           package: ${{ steps.helm-package.outputs.package }}
           version: ${{ steps.helm-package.outputs.version }}
