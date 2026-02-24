@@ -163,13 +163,33 @@ spec:
         - name: {{ .Values.applicationName }}-canary
           {{- $repo := required ".Values.canary.containerImage.repository is required" .Values.canary.containerImage.repository }}
           {{- $tag := required ".Values.canary.containerImage.tag is required" .Values.canary.containerImage.tag }}
-          image: "{{ $repo }}:{{ $tag }}"
+          {{- $registry := .Values.canary.containerImage.registry | default "" }}
+          {{- $orgId := .Values.canary.containerImage.orgId | default "" }}
+          {{- $buId := .Values.canary.containerImage.buId | default "" }}
+          {{- $appId := .Values.canary.containerImage.appId | default "" }}
+          {{- $fullImage := $repo }}
+          {{- if and (ne $registry "") (ne $orgId "") (ne $buId "") (ne $appId "") }}
+          {{- $fullImage = printf "%s/%s-%s-%s/%s" $registry $orgId $buId $appId $repo }}
+          {{- else if ne $registry "" }}
+          {{- $fullImage = printf "%s/%s" $registry $repo }}
+          {{- end }}
+          image: "{{ $fullImage }}:{{ $tag }}"
           imagePullPolicy: {{ .Values.canary.containerImage.pullPolicy | default "IfNotPresent" }}
         {{- else }}
         - name: {{ .Values.applicationName }}
           {{- $repo := required ".Values.containerImage.repository is required" .Values.containerImage.repository }}
           {{- $tag := required ".Values.containerImage.tag is required" .Values.containerImage.tag }}
-          image: "{{ $repo }}:{{ $tag }}"
+          {{- $registry := .Values.containerImage.registry | default "" }}
+          {{- $orgId := .Values.containerImage.orgId | default "" }}
+          {{- $buId := .Values.containerImage.buId | default "" }}
+          {{- $appId := .Values.containerImage.appId | default "" }}
+          {{- $fullImage := $repo }}
+          {{- if and (ne $registry "") (ne $orgId "") (ne $buId "") (ne $appId "") }}
+          {{- $fullImage = printf "%s/%s-%s-%s/%s" $registry $orgId $buId $appId $repo }}
+          {{- else if ne $registry "" }}
+          {{- $fullImage = printf "%s/%s" $registry $repo }}
+          {{- end }}
+          image: "{{ $fullImage }}:{{ $tag }}"
           imagePullPolicy: {{ .Values.containerImage.pullPolicy | default "IfNotPresent" }}
         {{- end }}
           {{- if .Values.containerCommand }}

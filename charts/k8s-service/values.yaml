@@ -13,8 +13,12 @@
 # containerImage is a map that describes the container image that should be used to serve the application managed by
 # this chart.
 # The expected keys are:
-#   - repository (string) (required) : The container image repository that should be used.
+#   - repository (string) (required) : The container image repository that should be used. This can be the full URL, or just the base repository name if using the breakdowns below.
 #                                      E.g `nginx` ; `gcr.io/kubernetes-helm/tiller`
+#   - registry   (string)            : The base URL of the registry (e.g. 485646919618.dkr.ecr.us-east-1.amazonaws.com). Optional if providing full URL in `repository`.
+#   - orgId      (string)            : The Organization ID (e.g. "104"). Optional.
+#   - buId       (string)            : The Business Unit ID (e.g. "1002"). Optional.
+#   - appId      (string)            : The Application ID (e.g. "1"). Optional.
 #   - tag        (string) (required) : The tag of the image (e.g `latest`) that should be used. We recommend using a
 #                                      fixed tag or the SHA of the image. Avoid using the tags `latest`, `head`,
 #                                      `canary`, or other tags that are designed to be “floating”.
